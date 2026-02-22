@@ -318,6 +318,8 @@
     </style>
 </head>
 <body>
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
 
     <div class="bg-glow"></div>
 
@@ -402,6 +404,46 @@
 <html lang="pt-br">
 <head>
     <style>
+        /* --- CURSOR CUSTOMIZADO --- */
+        body, a, button, .card, input, textarea {
+            cursor: none; /* Esconde o cursor padrão em tudo */
+        }
+
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary);
+            position: fixed;
+            top: 0;
+            left: 0;
+            border-radius: 50%;
+            z-index: 9999;
+            pointer-events: none; /* Garante que o cursor não atrapalhe os cliques */
+            transform: translate(-50%, -50%);
+        }
+
+        .cursor-outline {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--primary);
+            position: fixed;
+            top: 0;
+            left: 0;
+            border-radius: 50%;
+            z-index: 9998;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s ease-out, height 0.2s ease-out, background-color 0.2s ease-out;
+        }
+
+        /* Estado "Magnético" quando passa o mouse em algo interativo */
+        .cursor-outline.hover-state {
+            width: 65px;
+            height: 65px;
+            background-color: rgba(0, 242, 255, 0.1);
+            border-color: transparent;
+            backdrop-filter: blur(2px);
+        }
         /* --- ESTILOS ADICIONAIS --- */
         
         /* Filtros da Galeria */
@@ -622,6 +664,38 @@
                 btn.innerText = "MENSAGEM ENVIADA!";
                 e.target.reset();
             }, 2000);
+        });
+
+        // --- LÓGICA DO CURSOR CUSTOMIZADO ---
+        const cursorDot = document.querySelector('.cursor-dot');
+        const cursorOutline = document.querySelector('.cursor-outline');
+
+        // Movimento do Cursor
+        window.addEventListener('mousemove', (e) => {
+            const posX = e.clientX;
+            const posY = e.clientY;
+
+            // O ponto central segue o mouse instantaneamente
+            cursorDot.style.left = `${posX}px`;
+            cursorDot.style.top = `${posY}px`;
+
+            // O anel externo segue com um leve atraso (delay) usando a API de Animação
+            cursorOutline.animate({
+                left: `${posX}px`,
+                top: `${posY}px`
+            }, { duration: 400, fill: "forwards" });
+        });
+
+        // Efeito Magnético nos elementos interativos
+        const interativos = document.querySelectorAll('a, button, .card, input, textarea');
+        
+        interativos.forEach(elemento => {
+            elemento.addEventListener('mouseenter', () => {
+                cursorOutline.classList.add('hover-state');
+            });
+            elemento.addEventListener('mouseleave', () => {
+                cursorOutline.classList.remove('hover-state');
+            });
         });
     </script>
 </body>
